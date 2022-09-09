@@ -7,7 +7,7 @@ import randomWords from 'random-words'
 
 
 const App = () => {
-    const nbrWords = 55
+    const nbrWords = 70
 
     const [ userInput, setUserInput       ] = useState( []                       )
     const [ initialWords, setInitialWords ] = useState( randomWords( nbrWords )  )
@@ -20,6 +20,7 @@ const App = () => {
     const [ length, setLength             ] = useState( initialWords[ 0 ].length )
     const [ counter, setCounter           ] = useState( 0                        )
     const [ fullCounter, setFullCounter   ] = useState( 0                        )
+    const [ viewPort, setViewPort         ] = useState( window.innerWidth        )
 
     const allowedKey = [
         8,
@@ -72,10 +73,10 @@ const App = () => {
     ]
 
     const timerButtons = [
+        10,
         15,
-        30,
-        45,
-        60
+        20,
+        30
     ]
 
 
@@ -91,6 +92,7 @@ const App = () => {
         setLetterIndex ( 0                        )
         setCounter     ( 0                        )
         setFullCounter ( 0                        )
+        setViewPort    ( window.innerWidth        )
     }
 
     const handleUserInput = ( event ) => {
@@ -120,11 +122,6 @@ const App = () => {
                 setFullCounter( fullCounter + 1 )
                 setLetterIndex( letterIndex + 1 )
 
-                if( counter > 135 ) {
-                    setCounter     ( 0                                                  )
-                    setInitialWords( [ ...initialWords, randomWords( 20 ).join( ' ' ) ] )
-                }
-
                 if( event.key === initialWords.join( ' ' ).split( '' )[ userInput.length ] ) {
                     setUserInput( [ ...userInput, {
                         letter: event.key,
@@ -150,6 +147,11 @@ const App = () => {
         else return
     }
 
+    const changeTimer = ( el ) => {
+        if( !start ) setInitialTimer( el )
+        else return false
+    }
+
 
     useEffect( () => {
         document.addEventListener( 'keydown', handleUserInput )
@@ -169,7 +171,10 @@ const App = () => {
     useEffect( () => {
         if( timer === 0 ) {
             const filtered = userInput.filter( el => el.letter.trim() && el.valid )
-            setWpm( ( filtered.length / 4 ) * ( 60 / initialTimer ) )
+            if( filtered.length === 0 ) {
+                setWpm( 1 )
+            }
+            else setWpm( ( filtered.length / 4 ) * ( 60 / initialTimer ) )
         }
     }, [ timer ] )
 
@@ -186,82 +191,190 @@ const App = () => {
     return(
         <>
         { !wpm
-            ? <div
+            ?
+                <>
+                    <div
+                        style={ {
+                            padding  : viewPort / 4,
+                            paddingBottom: '0',
+                            paddingTop: '0',
+                            display: 'flex',
+                            alignContent: 'center',
+                            flexWrap: 'wrap',
+                            position : 'relative',
+                            height: '100vh',
+                            width: '100%'
+                        } }
+                    >
+                        { initialWords.map( ( el, i ) => {
+                            return(
+                                <span
+                                    key={ i }
+                                    style={ {
+                                        whiteSpace: 'nowrap',
+                                        display   : 'inline-block'
+                                    } }
+                                >
+                                    { el.split( '' ).concat( ' ' ).map( ( letter, j ) => {
+                                        return(
+                                            <span
+                                                key={ j }
+                                                style={ {
+                                                    display      : 'inline-block',
+                                                    fontSize     : '1.6rem',
+                                                    letterSpacing: '1px',
+                                                    wordSpacing  : '4px',
+                                                    position     : 'relative',
+                                                    color        : !userInput.find( el => el.key === ( i.toString() + j.toString() ) )
+                                                        ? '#585c5c'
+                                                        : userInput.find( el => el.key === ( i.toString() + j.toString() ) ) &&
+                                                        userInput.find( el => el.key === ( i.toString() + j.toString() ) ).valid
+                                                            ? 'white'
+                                                            : '#ff392b'
+                                                } }
+                                            >
+                                                { letter === ' ' ? '\u00a0' : letter }
+                                                <div
+                                                    style={ {
+                                                        position       : 'absolute',
+                                                        height         : '80%',
+                                                        width          : '3px',
+                                                        borderRadius   : '4px',
+                                                        backgroundColor: '#17b8bd',
+                                                        top            : '50%',
+                                                        transform      : 'translateY( -50% )',
+                                                        right          : '0',
+                                                        display        :
+                                                            userInput.find(
+                                                                el => el.key === ( i.toString() + j.toString()
+                                                            ) ) &&
+                                                            userInput.find(
+                                                                el => el.key === ( i.toString() + j.toString()
+                                                            ) ).key === userInput[ fullCounter - 1 ].key
+                                                                ? 'block'
+                                                                : 'none'
+                                                    } }
+                                                    className="letter-cursor"
+                                                >
+                                                </div>
+                                            </span>
+                                        )
+                                    } ) }
+                                </span>
+                            )
+                        } ) }
+                    </div>
+                    <div
+                        style={ {
+                            position: 'absolute',
+                            top: '30%',
+                            left: '50%',
+                            transform: 'translateX( -50% )'
+                        } }
+                    >
+                        <p style={ {
+                            color: '#17b8bd',
+                            fontSize: '24px',
+                            fontWeight: '500'
+                        } }>
+                            { timer }
+                        </p>
+                    </div>
+                    <button
+                        onClick={ () => restart() }
+                        style={ {
+                            position    : 'absolute',
+                            bottom      : '25%',
+                            color       : '#17b8bd',
+                            left        : '50%',
+                            transform   : 'translateX( -50% )',
+                            border      : '1px solid #17b8bd',
+                            padding     : '8px 16px',
+                            borderRadius: '12px'
+                        } }
+                    >
+                        Restart
+                    </button>
+                    <div
+                        style={ {
+                            position      : 'absolute',
+                            top           : '20px',
+                            display       : 'flex',
+                            justifyContent: 'space-between',
+                            width         : '15%',
+                            left          : '50%',
+                            transform     : 'translateX( -50% )',
+                            fontSize      : '18px',
+                            color         : 'white',
+                        } }
+                    >
+                        Select time :
+                        { timerButtons.map( ( el, index ) => (
+                            <button
+                                onClick={ () => changeTimer( el ) }
+                                key    ={ index                       }
+                                style={ { color: '#17b8bd' } }
+                            >
+                                { el }
+                            </button>
+                        ) ) }
+                    </div>
+                    <p
+                        style={ {
+                            color: 'white',
+                            position: 'absolute',
+                            bottom: '20px',
+                            left: '50%',
+                            transform: 'translateX( -50% )',
+                        } }
+                    >
+                        Press tab to restart
+                    </p>
+                </>
+            : <div
                 style={ {
-                    padding  : '50px',
-                    textAlign: 'center',
-                    position : 'relative'
+                    padding       : viewPort / 4,
+                    paddingBottom : '0',
+                    paddingTop    : '0',
+                    display       : 'flex',
+                    alignContent  : 'center',
+                    flexWrap      : 'wrap',
+                    position      : 'relative',
+                    height        : '100vh',
+                    width         : '100%',
+                    justifyContent: 'center'
                 } }
             >
-                { initialWords.map( ( el, i ) => {
-                    return(
-                        <span
-                            key={ i }
-                            style={ {
-                                whiteSpace: 'nowrap',
-                                display   : 'inline-block'
-                            } }
-                        >
-                            { el.split( '' ).concat( ' ' ).map( ( letter, j ) => {
-                                return(
-                                    <span
-                                        key={ j }
-                                        style={{
-                                            display : 'inline-block',
-                                            fontSize: '22px',
-                                            position: 'relative',
-                                            color   : !userInput.find( el => el.key === ( i.toString() + j.toString() ) )
-                                                ? 'gray'
-                                                : userInput.find( el => el.key === ( i.toString() + j.toString() ) ) &&
-                                                userInput.find( el => el.key === ( i.toString() + j.toString() ) ).valid
-                                                    ? 'green'
-                                                    : 'red'
-                                        }}
-                                    >
-                                        { letter === ' ' ? '\u00a0' : letter }
-                                        <div
-                                            style={{
-                                                position       : 'absolute',
-                                                height         : '100%',
-                                                width          : '1px',
-                                                backgroundColor: 'blue',
-                                                top            : '0',
-                                                right          : '0',
-                                                display        :
-                                                    userInput.find(
-                                                        el => el.key === ( i.toString() + j.toString()
-                                                    ) ) &&
-                                                    userInput.find(
-                                                        el => el.key === ( i.toString() + j.toString()
-                                                    ) ).key === userInput[ fullCounter - 1 ].key
-                                                        ? 'block'
-                                                        : 'none'
-                                            }}
-                                        >
-                                        </div>
-                                    </span>
-                                )
-                            } ) }
-                        </span>
-                    )
-                } ) }
-                <p>
-                    { timer }
-                </p>
-                { timerButtons.map( ( el, index ) => (
-                    <button
-                        onClick={ () => setInitialTimer( el ) }
-                        key    ={ index                       }
+                <p
+                    style={ {
+                        color: '#17b8bd',
+                        fontSize: '42px',
+                        fontWeight: '500'
+                    } }
+                >
+                    Your score:
+                    <span
+                        style={ {
+                            fontSize: '62px'
+                        } }
                     >
-                        { el }
-                    </button>
-                ) ) }
-                <button onClick={ () => restart() }>
-                    Restart
-                </button>
-            </div>
-            : <div>
-                { wpm }
+                        &nbsp;
+                        { wpm }
+                        &nbsp;
+                    </span>
+                    words per minute.
+                </p>
+                <p
+                    style={ {
+                        color: 'white',
+                        position: 'absolute',
+                        bottom: '20px',
+                        left: '50%',
+                        transform: 'translateX( -50% )',
+                    } }
+                >
+                    Press tab to restart
+                </p>
             </div>
         }
         </>
