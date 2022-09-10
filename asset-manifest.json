@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/monkeytype-clone/static/css/main.75772917.css",
+    "main.js": "/monkeytype-clone/static/js/main.6651153c.js",
+    "index.html": "/monkeytype-clone/index.html",
+    "main.75772917.css.map": "/monkeytype-clone/static/css/main.75772917.css.map",
+    "main.6651153c.js.map": "/monkeytype-clone/static/js/main.6651153c.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.75772917.css",
+    "static/js/main.6651153c.js"
+  ]
+}
