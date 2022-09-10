@@ -267,7 +267,7 @@ const App = () => {
                     <div
                         style={ {
                             position: 'absolute',
-                            top: '30%',
+                            top: '15%',
                             left: '50%',
                             transform: 'translateX( -50% )'
                         } }
@@ -284,7 +284,7 @@ const App = () => {
                         onClick={ () => restart() }
                         style={ {
                             position    : 'absolute',
-                            bottom      : '25%',
+                            bottom      : '15%',
                             color       : '#17b8bd',
                             left        : '50%',
                             transform   : 'translateX( -50% )',
